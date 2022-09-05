@@ -1,0 +1,131 @@
+# Import csv(s) files into Snowflake
+@@statistics_TextBlock: '1'
+@@statistics_Input_File: '1'
+@@statistics_Input_Text: '4'
+@@statistics_Input_Toggle: '3'
+@@statistics_Input_Number: '1'
+@@statistics_Action_Submit: '2'
+Display.ShowCustomDialog CardTemplateJson: '''{
+  \"type\": \"AdaptiveCard\",
+  \"version\": \"1.4\",
+  \"id\": \"AdaptiveCard\",
+  \"body\": [
+    {
+      \"type\": \"TextBlock\",
+      \"id\": \"Caption\",
+      \"text\": \"${Caption_Text}\",
+      \"spacing\": \"large\"
+    },
+    {
+      \"type\": \"Input.File\",
+      \"id\": \"SelectedFile\",
+      \"value\": \"${SelectedFile_Value}\",
+      \"isRequired\": true,
+      \"label\": \"${SelectedFile_Label}\"
+    },
+    {
+      \"type\": \"Input.Text\",
+      \"id\": \"SkipRows\",
+      \"value\": \"${SkipRows_Value}\",
+      \"label\": \"${SkipRows_Label}\",
+      \"separator\": true
+    },
+    {
+      \"type\": \"Input.Text\",
+      \"id\": \"Database\",
+      \"value\": \"${Database_Value}\",
+      \"label\": \"${Database_Label}\"
+    },
+    {
+      \"type\": \"Input.Text\",
+      \"id\": \"Schema\",
+      \"value\": \"${Schema_Value}\",
+      \"label\": \"${Schema_Label}\"
+    },
+    {
+      \"type\": \"Input.Text\",
+      \"id\": \"Object\",
+      \"value\": \"${Object_Value}\",
+      \"label\": \"${Object_Label}\"
+    },
+    {
+      \"type\": \"Input.Toggle\",
+      \"id\": \"CreateTable\",
+      \"title\": \"${CreateTable_Title}\",
+      \"valueOn\": \"${CreateTable_ValueOn}\",
+      \"valueOff\": \"${CreateTable_ValueOff}\",
+      \"value\": \"${CreateTable_Value}\",
+      \"label\": \"${CreateTable_Label}\",
+      \"separator\": true
+    },
+    {
+      \"type\": \"Input.Toggle\",
+      \"id\": \"CreateFormat\",
+      \"title\": \"${CreateFormat_Title}\",
+      \"valueOn\": \"${CreateFormat_ValueOn}\",
+      \"valueOff\": \"${CreateFormat_ValueOff}\",
+      \"value\": \"${CreateFormat_Value}\",
+      \"label\": \"${CreateFormat_Label}\"
+    },
+    {
+      \"type\": \"Input.Toggle\",
+      \"id\": \"CreateStage\",
+      \"title\": \"${CreateStage_Title}\",
+      \"valueOn\": \"${CreateStage_ValueOn}\",
+      \"valueOff\": \"${CreateStage_ValueOff}\",
+      \"value\": \"${CreateStage_Value}\",
+      \"label\": \"${CreateStage_Label}\"
+    },
+    {
+      \"type\": \"Input.Number\",
+      \"id\": \"SplitFile\",
+      \"value\": 0.0,
+      \"min\": 0.0,
+      \"max\": 9999999.0,
+      \"label\": \"${SplitFile_Label}\",
+      \"spacing\": \"large\",
+      \"separator\": true
+    }
+  ],
+  \"actions\": [
+    {
+      \"type\": \"Action.Submit\",
+      \"id\": \"Submit\",
+      \"title\": \"${Submit_Title}\"
+    },
+    {
+      \"type\": \"Action.Submit\",
+      \"id\": \"Cancel\",
+      \"title\": \"${Cancel_Title}\"
+    }
+  ],
+  \"verticalContentAlignment\": \"center\",
+  \"FormTitle\": \"${AdaptiveCard_FormTitle}\"
+}''' CustomFormData=> CustomFormData ButtonPressed=> ButtonPressed4 @AdaptiveCard_FormTitle: $'''Parameters''' @Caption_Text: $'''Use this dialog to set values for the import process.''' @SelectedFile_Label: $'''Pick a csv file''' @SelectedFile_Value: $'''D:\\Snowflake\\Zip.csv''' @SkipRows_Label: $'''Rows to skip, if columns titles present, set to 1''' @SkipRows_Value: 1 @Database_Label: $'''Database''' @Database_Value: $'''Tools''' @Schema_Label: $'''Schema''' @Schema_Value: $'''Public''' @Object_Label: $'''Object name''' @Object_Value: $'''zip''' @CreateTable_Label: $'''Create Staging Table?''' @CreateTable_Title: $'''Yes''' @CreateTable_Value: $'''True''' @CreateTable_ValueOn: $'''True''' @CreateTable_ValueOff: $'''False''' @CreateFormat_Label: $'''Create Format''' @CreateFormat_Title: $'''Yes''' @CreateFormat_Value: $'''True''' @CreateFormat_ValueOn: $'''True''' @CreateFormat_ValueOff: $'''False''' @CreateStage_Label: $'''Create Stage''' @CreateStage_Title: $'''Yes''' @CreateStage_Value: $'''True''' @CreateStage_ValueOn: $'''True''' @CreateStage_ValueOff: $'''False''' @SplitFile_Label: $'''Split File by # rows, 0 means no split, recommended 100000''' @Submit_Title: $'''Ok''' @Cancel_Title: $'''Cancel'''
+IF ButtonPressed4 = $'''Cancel''' THEN
+    EXIT Code: 0
+END
+SET SkipRows TO CustomFormData['SkipRows']
+SET SelectedFile TO CustomFormData['SelectedFile']
+SET SelectedFile TO CustomFormData['SelectedFile']
+# Need to do all of this manip to extract the folder name. I wish there is a better way
+Text.Reverse Text: CustomFormData['SelectedFile'] ReversedText=> ReversedFile
+Text.CropText.CropTextAfterFlag Text: ReversedFile FromFlag: $'''\\''' IgnoreCase: False CroppedText=> CroppedText IsFlagFound=> IsFlagFound
+Text.Reverse Text: $'''\\%CroppedText%''' ReversedText=> SelectedFileDirectory
+Text.Replace Text: SelectedFile TextToFind: $'''\\''' IsRegEx: False IgnoreCase: False ReplaceWith: $'''/''' ActivateEscapeSequences: False Result=> ForwardSlashFileName
+Text.Replace Text: $'''%SelectedFileDirectory%split\\*.csv''' TextToFind: $'''\\''' IsRegEx: False IgnoreCase: False ReplaceWith: $'''/''' ActivateEscapeSequences: False Result=> ForwardSlashFolderName
+SET DB TO CustomFormData['Database']
+SET Schema TO CustomFormData['Schema']
+SET Object TO CustomFormData['Object']
+SET SplitAtRow TO CustomFormData['SplitFile']
+IF CustomFormData['CreateTable'] = $'''True''' THEN
+    IF SkipRows = 0 THEN
+        Display.ShowMessageDialog.ShowMessage Title: $'''Error''' Message: $'''If Skip row = 0, it means that we do not have the column titles in row 1 therefore we cannot automatically create a table creation script.''' Icon: Display.Icon.ErrorIcon Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressedError
+        EXIT Code: 0
+    END
+    CALL Create_Stage_Table
+END
+IF SplitAtRow > 0 THEN
+    CALL splitfile
+END
+CALL Snowflake_Ingestor

@@ -1,0 +1,15 @@
+Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: SelectedFile Visible: False ReadOnly: False Instance=> ExcelInstance
+Excel.GetFirstFreeColumnRow Instance: ExcelInstance FirstFreeColumn=> FirstFreeColumn FirstFreeRow=> FirstFreeRow
+SET DDLLine TO $'''/*Text*/ Create Or replace table %Schema%.%Object%Staging ('''
+LOOP LoopIndex FROM 2 TO FirstFreeColumn STEP 1
+    SET LoopIndexMinus1 TO LoopIndex
+    Variables.DecreaseVariable Value: LoopIndexMinus1 DecrementValue: 1
+    Excel.ReadFromExcel.ReadCell Instance: ExcelInstance StartColumn: LoopIndexMinus1 StartRow: 1 ReadAsText: True CellValue=> ExcelData
+    IF LoopIndex = FirstFreeColumn THEN
+        SET DDLLine TO $'''%DDLLine% %ExcelData% Nvarchar'''
+    ELSE IF LoopIndex < FirstFreeColumn THEN
+        SET DDLLine TO $'''%DDLLine% %ExcelData% Nvarchar,'''
+    END
+END
+SET DDLLine TO $'''%DDLLine% ) ;'''
+Excel.CloseExcel.Close Instance: ExcelInstance
