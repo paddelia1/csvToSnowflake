@@ -27,6 +27,9 @@ Add a few CSV files to the folder of your choice.
   
   You can now use your flow to load any csv file to snowflake.
 You just have to run the flow, fill the initial dialog, and relax.
+
 ![image](https://user-images.githubusercontent.com/62514847/188514955-03e93f76-f716-4b2c-9a56-6153a37bcb07.png)
+
 Then you can verify that the data has been imported into snowflake.
+
 ![image](https://user-images.githubusercontent.com/62514847/188515093-13806f91-3982-4676-b308-64607cd3a6a6.png)
