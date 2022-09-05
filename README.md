@@ -10,7 +10,7 @@ This tool is intended for whoever wants to load csv to snowflake very easilly an
 Data is loaded as Staging Data (raw data), use another ETL tool such as DBT to build the final business objects in Snowflake.
 
 You can reload multiple time the same file, there will be no duplication of data.
-Aftger the initial load you will no longer need to keep the 3 create options checked.
+After the initial load you will no longer need to keep the 3 create options checked.
 
 How to use
 
@@ -25,7 +25,7 @@ Create a power Automate desktop flow called csvToSnowflake
   
 Add a few CSV files to the folder of your choice.  
   
-  You can now use your flow to load any csv file to snowflake.
+You can now use your flow to load any csv file to snowflake.
 You just have to run the flow, fill the initial dialog, and relax.
 
 ![image](https://user-images.githubusercontent.com/62514847/188514955-03e93f76-f716-4b2c-9a56-6153a37bcb07.png)
