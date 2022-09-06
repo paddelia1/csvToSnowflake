@@ -1,5 +1,6 @@
 IF CustomFormData['CreateTable'] = $'''True''' THEN
     # Create a stage table in snow
+    Display.ShowMessageDialog.ShowMessageWithTimeout Title: $'''Progress''' Message: $'''Now creating a table to stage the data''' Icon: Display.Icon.Information Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: True Timeout: 2 ButtonPressed=> ButtonPressed
     System.RunApplication.RunApplicationAndWaitToComplete ApplicationPath: $'''C:\\Program Files\\Snowflake SnowSQL\\snowsql.exe''' CommandLineArguments: $'''-q \"%DDLLine%\" -d %DB%''' WorkingDirectory: $'''c:\\temp''' WindowStyle: System.ProcessWindowStyle.Normal Timeout: 0 ProcessId=> AppProcessId ExitCode=> AppExitCode
 END
 # Create a format in snow
@@ -30,3 +31,4 @@ END
 # Import into snowflake with snowSQL note the variable format can be reused same format for all csv.
 Display.ShowMessageDialog.ShowMessageWithTimeout Title: $'''Progress''' Message: $'''Now Copy Stage into %DB% %Schema%''' Icon: Display.Icon.Information Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: True Timeout: 2 ButtonPressed=> ButtonPressed
 System.RunApplication.RunApplication ApplicationPath: $'''C:\\Program Files\\Snowflake SnowSQL\\snowsql.exe''' CommandLineArguments: $'''-q \"COPY INTO \"%schema%\".\"%Object%\"Staging FROM @\"%Object%\"Staging file_format = (format_name = \'GZIPCSVFORMAT\')\" -d %DB% -s %Schema%''' WorkingDirectory: $'''c:\\temp''' WindowStyle: System.ProcessWindowStyle.Normal ProcessId=> AppProcessId
+Display.ShowMessageDialog.ShowMessageWithTimeout Title: $'''Complete''' Message: $'''Operation complete.''' Icon: Display.Icon.Information Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: True Timeout: 2 ButtonPressed=> ButtonPressed
