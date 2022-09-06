@@ -107,7 +107,6 @@ IF ButtonPressed4 = $'''Cancel''' THEN
 END
 SET SkipRows TO CustomFormData['SkipRows']
 SET SelectedFile TO CustomFormData['SelectedFile']
-SET SelectedFile TO CustomFormData['SelectedFile']
 # Need to do all of this manip to extract the folder name. I wish there is a better way
 Text.Reverse Text: CustomFormData['SelectedFile'] ReversedText=> ReversedFile
 Text.CropText.CropTextAfterFlag Text: ReversedFile FromFlag: $'''\\''' IgnoreCase: False CroppedText=> CroppedText IsFlagFound=> IsFlagFound
