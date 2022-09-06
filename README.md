@@ -20,6 +20,10 @@ Install SnowSQL (cli for snowflake)
 
 Create a power Automate desktop flow called csvToSnowflake
   Copy paste the code of the Main file to the Main flow
+    Copy paste code to designer area will rebuild the graphical flow for you, you should now see this instead of the code.
+    
+    ![image](https://user-images.githubusercontent.com/62514847/188527123-0babcd9b-8017-4200-8793-39be03eb8c24.png)
+
   Create 3 sub-flows called splitfile, Create_Stage_Table and Snowflake_Ingestor
   Copy paste the code from the text files to the sub-flow design areas
   
